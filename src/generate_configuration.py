@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 import getopt
 import os
@@ -471,10 +472,22 @@ shape_config = {
     ####################################
 
 def save_config():
+    """ Generates and adjust configuration stored in a build specific JSON
+
+    By default the filename is run_config.json and location is current directory.
+    --config CONFIG_NAME JSON file is stored in ../config/ folder with specified name.
+    --update When specified it will load the configuration file first and update the data from it first.
+    --interactive When specified it will ask for selection in each pre-defined section.
+    --help prints this message.
+    """
+
     # Check to see if the user has specified an alternate config
-    opts, args = getopt.getopt(sys.argv[1:], "", ["config=", "update="])
+    opts, args = getopt.getopt(sys.argv[1:], "", ["config=", "update=", "help", "interactive"])
     got_opts = False
     for opt, arg in opts:
+        if opt in ('--help'):
+            help(save_config)
+            exit()
         if opt in ('--update'):
             with open(os.path.join(r"..", "configs", arg + '.json'), mode='r') as fid:
                 data = json.load(fid)
