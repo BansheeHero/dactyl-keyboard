@@ -56,7 +56,9 @@ if save_dir in ['', None, '.']:
     parts_path = path.join(r"..", "src", "parts")
 else:
     save_path = path.join(r"..", "things", save_dir)
-    parts_path = path.join(r"..", r"..", "src", "parts")
+# Trying to figure out why this part uses relative path
+#    parts_path = path.join(r"..", r"..", "src", "parts")
+    parts_path = path.join(r"..", "src", "parts")
 
 ###############################################
 # END EXTREMELY UGLY BOOTSTRAP
