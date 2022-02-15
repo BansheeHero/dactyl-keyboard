@@ -3,6 +3,21 @@ This is a fork of [Dactyl-Manuform](https://github.com/tshort/dactyl-keyboard) b
 
 While the code structure remains comparable to the original, Clojure and OpenSCAD have been replaced by Python and cadquery/OpenCASCADE.  The predecessors were exceptional contributions to the ergo keyboard community by the authors but used a rather esoteric programming language, Clojure, and a relatively inconsistent geometry engine, OpenSCAD.  My hope is that by converting the code the community will have an easier time modifying and evolving this design.  
 
+> This is a forked repository. Following document is the original modified. Do not trust anybody to provide the same links. This includes me and go and check-out the original repository. I encorauge to check out the shop for great deals.
+
+
+## Content of this document:
+
+* [Introduction](#The-Dactyl-ManuForm-Keyboard-Python-3---Cadquery)
+* [Features](#features)
+    * TODO: List out outstanding features.
+* [Installations](#installations)
+    * [Docker Environment](#docker-environment-installation)  
+    * [Conda Environment](#conda-environment-installation)  
+    * [Python Environment](#python-environment-installation)  
+* [Generating your first project](#generating-your-first-project)
+* [Working with a template](#Working-with-a-template)  
+* [Origins](#origins) references to the previous document.
 
 ## Collaborations and Donations
 I decided to start accepting donations to help offset some of the prototyping costs and development time.  There are 2 ways to contribute to this project:
@@ -26,7 +41,9 @@ As part of the effort to create a new engine I converted the code to cadquery/Op
 
 ![STEP File in FreeCAD](./resources/FreeCAD_STEP_screen.png)
 
-## Added Features
+## Features
+
+Following features were added by the original maintainer and maybe few new ones.
 
 ### Docker Autobuild
 ![Docker Support!](./resources/docker_containers.png)
@@ -133,7 +150,7 @@ I am planning to deprecate outside and original at some point.  I don't see the 
 This is now a bit of a monster of many minds and yet continues to bear fruit.  
 I plan to continue to use this code to try new geometries and features to share for the foreseeable future.
 
-## Installation
+# Installations
 
 There are three different environments in which you can run this application. Depending on which you choose, the installation process will vary.
 
@@ -141,7 +158,7 @@ There are three different environments in which you can run this application. De
 - [Conda Environment](#conda-environment-installation)
 - [Python Environment](#python-environment-installation)
 
-### Docker Environment Installation
+## Docker Environment Installation
 
 Running the application with Docker is the most convenient way to do so. In addition to a straightforward installation, this also allows you to generate models in the background without having to keep a shell open.
 
@@ -169,19 +186,64 @@ You can also remove all of the Docker artifacts by running the included uninstal
 
 *Tip:* Run `./dactyl.sh shell --session` to jump into a bash session inside of the shell container.
 
+## Direct installations
+
+These chapters talk about installing this directly on your system. Some are easier than others and all can impact your host operational OS.
+
+> If you are using Fedora LiveUSB, you can go straight to [Installing additional SW](installing-additional-sw) and continue with [Python Environment](#python-environment-installation).
+
+### Installing additional SW ###
+
+Once you have a python 3 enabled distribution, there are some apps that you will likely use.
+Here is a list of them and they are located in many repositories or stores.
+
+* OpenSCAD for reviewing and rendering results from `solidpython` library.
+* FreeCAD for reviewing and rendering results from `cadquery` library.
+    * Required `Conda` envoronment and package management.
+
+> On Fedora: `sudo dnf install  freecad freecad-data openscad openscad-MCAD conda.noarch`
+
 ### Conda Environment Installation
 
-After the Docker installation, Anaconda is the next best option. Before you begin, ensure you have installed [Anaconda](https://docs.anaconda.com/anaconda/install/index.html) and the `conda` command is available from your terminal.
+After the Docker installation, Anaconda is the next best option because `CadQuery` requires it. 
+
+> Before you begin, ensure you have installed [Anaconda](https://docs.anaconda.com/anaconda/install/index.html) and the `conda` command is available from your terminal by typing `conda -V` it will print the version: `conda 4.10.1`
 
 You can install all of the dependencies by hand, but you can automate the install by running the bash script `./conda.sh`. This will create a python 3.7 environment named `dactyl-keyboard` and install all of the required dependencies.
 
-If you would like to install into a conda environment manually, check the bash script to see all of the required commands.
+> If you would like to install into a conda environment manually, check the bash script to see all of the required commands.
 
 If you would like to remove the conda artifacts, run `./conda.sh --uninstall`.
 
 ### Python Environment Installation
 
 You can install the application in a regular python environment, but it is not recommended. You will not be able to take advantage of the updated geometry generated by the CadQuery engine, as this is only available via the Docker/Anaconda installation.
+
+1. Clone or download the project.
+   `ls dactyl-keyboard`
+1. Create virtual environment to avoid collisions.
+   `virtualenv -p python3 dactyl-keyboard`
+   `cd dactyl-keyboard`
+1. Activate the environment
+   `source bin/activate`
+1. Install dependencies.
+   `pip3 install numpy scipy solidpython dataclasses-json`
+1. Navigate to the `src` folder.
+   `cd src/`
+
+```bash
+ls dactyl-keyboard
+virtualenv -p python3 dactyl-keyboard
+cd dactyl-keyboard
+source bin/activate
+pip3 install numpy scipy solidpython dataclasses-json
+cd src/
+```
+
+   > When you are running it again skip step for creating the environment and just navigate to the folder and activate it.
+   This allows you to switch environments and resume work between projects. `source bin/activate`
+
+### Related projects and apps
 
 **Setting up the Python environment - NEW**
 * [Install Python 3.X](https://www.python.org/downloads/release/python-385/) or use your [favorite distro / platform (Anaconda)](https://www.anaconda.com/products/individual) 
@@ -197,27 +259,79 @@ You can install the application in a regular python environment, but it is not r
 * [Install SolidPython](https://pypi.org/project/solidpython/), easiest method is `pip install solidpython` or `pip3 install solidpython` on linux.
 * [Install OpenSCAD](http://www.openscad.org/)
 
-## Generating the design
+## Generating your first project ##
 
-**Generating the design - UPDATED**
-* ~~Run `python dactyl_manuform_cadquery.py` or `python3 dactyl_manuform_cadquery.py`~~ 
-* ~~Run `python dactyl_manuform.py` or `python3 dactyl_manuform.py`~~
-* Run `generate_configuration.py` or directly edit `run_config.json` to configure the design
-* Run `dactyl_manuform.py` to create the geometry (ENGINE variable in run determines method)
-* This will regenerate the `things/` files (or in subdirectory if defined in config)
-    * `*left.*`
-    * `*right.*`
-    * `*plate.*`
-    * `*oled_clip.*` (if applicable)
-    * `*oled_clip_test.*` (if applicable)
-* Use OpenSCAD to open a `.scad` file
-* Use FreeCAD or other application to open a `.step` file
-* Make changes to design, repeat run step
-* When done, use OpenSCAD or FreeCAD to export STL files
+These steps should result in similar outcome as the provided things.
+
+> Until I get the DockerFile working properly the instructions are for direct installations. Interactive shell for docker works similarly and is already in src directory.
+
+1. Navigate to `src/` as the scripts use pre-defined paths from this directory.  
+    `cd src/`
+1. Get familiar with the options. (`Q` for quiting the help window.)  
+    `python3 generate_configuration.py --help`
+1. Generate a config with specific config name.   
+    `python3 generate_configuration.py  --config FirstOne`  
+    `$EDITOR ../configs/FirstOne.json`
+1. Generate solids with the same config name.   
+    `python3 dactyl_manuform.py  --config FirstOne`   
+    * This will regenerate the `things/` files (or in subdirectory if defined in config)
+        * `*left.*`
+        * `*right.*`
+        * `*plate.*`
+        * `*oled_clip.*` (if applicable)
+        * `*oled_clip_test.*` (if applicable)
+1. Browse your generated solids. 
+    * Use OpenSCAD to open a `.scad` files.  
+    `ls ../things/FirstOne/*.scad`
+    * Use FreeCAD or other application to open a `.step` file  
+    `ls ../things/FirstOne/*.step`
+* You can edit the JSON and restart from step that generates solids.
+1. When done, use OpenSCAD or FreeCAD to export STL files to use for printing. 
+1. Deactivate the virtual environment: 
+    * Python: `deactivate`
+    * Conda: `conda deactivate`
+
+### Using the interactive option
+
+I am adding an argument `--interactive` that splits the parameters into groups and provides help before asking for an uption.
+
+> This is meant to provide better alternative to manual JSON templates. For now use the templates.
+
+It is using built-in help function and all it needs is rewriting existing comments to python DOCSTRINGS.
+
+
+## Working with a template
+
+So the `generate_configuration.py` supports `--update` flag, but how to use it. Well the trick is to have a partial JSON that has different name of the `save_dir` and `config_name` than the name the JSON file.
+
+For example: `carquery.json` like this:
+```json
+{
+    "ENGINE": "cadquery",
+    "save_dir": "FirstOne",
+    "config_name": "FirstOne",
+}
+```
+
+Will update the `FirstOne` configuration file with just engine change, just by running:
+```bash
+python3 generate_configuration.py  --update cadquery
+$EDITOR ../configs/FirstOne.json
+```
+
+You can supply both arguments to override the JSON as well. This can be used to make a copy:
+
+```bash
+python3 generate_configuration.py  --update cadquery --config SecondOne
+$EDITOR ../configs/SecondOne.json
+```
+
+You can use these templates to develop your flavor without constantly checking for changes to smaller parameters.
+
+# Origins
 
 **The majority of the the rest of the below content is as defined by previous authors, except where noted.**
 
-## Origin
 ![Imgur](http://i.imgur.com/LdjEhrR.jpg)
 
 The main change is that the thumb cluster was adapted from the [ManuForm keyboard](https://github.com/jeffgran/ManuForm) ([geekhack](https://geekhack.org/index.php?topic=46015.0)). The walls were changed to just drop to the floor. The keyboard is paramaterized to allow adjusting the following: 
