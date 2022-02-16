@@ -9,11 +9,94 @@ pi = 3.14159
 d2r = pi / 180
 r2d = 180 / pi
 
+# Until I learn about typing and annotation
+# features of Python, docstrings it is. 
+
+def user_choice(note, options):
+    """ Ask user for input until option is provided. """
+    choice = False
+    while choice not in options:
+        choice = input(note+"\nEnter your choice: ")
+    return choice
+
+def shape_engine(interactive = False):
+    """ What engine will be used to turn isntructions to a solid.
+
+
+    'solid' = solid python / OpenSCAD
+    'cadquery' = cadquery / OpenCascade
+
+    Warning: cadquery will not work witout using the container or conda installation.
+    """
+    if interactive:
+        choice = user_choice(shape_engine.__doc__, ['solid', 'cadquery'])
+        return { 'ENGINE': str(choice) }
+    # Default value:
+    return { 'ENGINE': 'solid' }
+
+def shape_thumb_symmetry(interactive = False):
+    """ Which cluster will you set first?
+
+    'both', 'left', 'right'
+    """ 
+    if interactive:
+        choice = user_choice(shape_thumb_symmetry.__doc__, ['both', 'left', 'right'])
+        return { 'ball_side': str(choice) }
+    return { 'ball_side': 'both' }
+
+def shape_thumb_layout(interactive = False):
+    """ Thumb clusters layout
+
+    'DEFAULT' 6-key
+    'MINI' 5-key
+    'CARBONFET' 6-key
+    'MINIDOX' 3-key
+    'TRACKBALL_ORBYL'
+    'TRACKBALL_CJ'
+    """
+
+    if interactive:
+        choice = user_choice(shape_thumb_layout.__doc__, ['DEFAULT',
+        'MINI', 
+        'CARBONFET', 
+        'MINIDOX', 
+        'TRACKBALL_ORBYL', 
+        'TRACKBALL_CJ']
+        )
+        return { 'thumb_style': str(choice) }
+    return { 'thumb_style': 'DEFAULT' }
+
+def shape_thumb(interactive = False):
+    """ Helper to provide relationship between multiple options.
+
+    'other_thumb' cluster used for second thumb except if ball_side == 'both'
+    I decided to use this parameter as an example for complicated relationships.
+    You can always ignore it and push the responsibility on the user.
+    """
+    # Ask for the first dependency
+    payload = shape_thumb_symmetry(interactive)
+    
+    if payload["ball_side"] == 'both':
+        payload.update(shape_thumb_layout(interactive)) 
+        payload.update({ 'other_thumb': payload["thumb_style"]})
+        return payload
+    if payload["ball_side"] =='right':
+        payload.update(shape_thumb_layout(interactive)) 
+        payload.update({ 'other_thumb': payload["thumb_style"]})
+        payload.update(shape_thumb_layout(interactive)) 
+        return payload
+    if payload["ball_side"] =='left':
+        payload.update(shape_thumb_layout(interactive)) 
+        right = shape_thumb_layout(interactive)
+        payload.update({ 'other_thumb': right["thumb_style"]})
+        return payload
+
+    # Unexpected outcome: fill in defaults.
+    payload.update(shape_thumb_layout(False))
+    payload.update({ 'other_thumb': payload["thumb_style"]})
+    return payload
+
 shape_config = {
-
-    'ENGINE': 'solid',  # 'solid' = solid python / OpenSCAD, 'cadquery' = cadquery / OpenCascade
-    # 'ENGINE': 'cadquery',  # 'solid' = solid python / OpenSCAD, 'cadquery' = cadquery / OpenCascade
-
 
     ######################
     ## Shape parameters ##
@@ -61,8 +144,6 @@ shape_config = {
     # THUMB PARAMETERS
     ##############################
 
-    # 'DEFAULT' 6-key, 'MINI' 5-key, 'CARBONFET' 6-key, 'MINIDOX' 3-key, 'TRACKBALL_ORBYL', 'TRACKBALL_CJ'
-    'thumb_style': 'DEFAULT',
     'default_1U_cluster': True, # only used with default, makes top right thumb cluster key 1U
     # Thumb key size.  May need slight oversizing, check w/ caps.  Additional spacing will be automatically added for larger keys.
     'minidox_Usize': 1.6,
@@ -128,7 +209,6 @@ shape_config = {
     ###########################################
     ## Trackball JS / ORBYL Thumb Cluster    ##
     ##########################################
-    'other_thumb': 'DEFAULT', # cluster used for second thumb except if ball_side == 'both'
     'tbjs_key_diameter': 70,
     'tbjs_Uwidth': 1.2,  # size for inner key near trackball
     'tbjs_Uheight': 1.2,  # size for inner key near trackball
@@ -169,7 +249,6 @@ shape_config = {
     'trackball_modular_ring_height': 10.0,  # height mount ring down from ball height. Covers gaps on elevated ball.
     'trackball_modular_clearance': 0.5,  # height of ball from ring, used to create identical position to fixed.
 
-    'ball_side': 'both', #'left', 'right', or 'both'
     'ball_diameter': 34.0,
     'ball_wall_thickness': 3,  # should not be changed unless the import models are changed.
     'ball_gap': 1.0,
@@ -484,6 +563,7 @@ def save_config():
     # Check to see if the user has specified an alternate config
     opts, args = getopt.getopt(sys.argv[1:], "", ["config=", "update=", "help", "interactive"])
     got_opts = False
+    interactive = False
     for opt, arg in opts:
         if opt in ('--help'):
             help(save_config)
@@ -493,6 +573,10 @@ def save_config():
                 data = json.load(fid)
                 shape_config.update(data)
             got_opts = True
+        if opt in ('--interactive'):
+            interactive = True
+            got_opts = True
+
 
     for opt, arg in opts:
         if opt in ('--config'):
@@ -500,6 +584,10 @@ def save_config():
             shape_config['save_dir'] = arg
             shape_config['config_name'] = arg
             got_opts = True
+
+    # Combine all sections together.
+    shape_config.update(shape_engine(interactive))
+    shape_config.update(shape_thumb(interactive))
 
     # Write the config to ./configs/<config_name>.json
     if got_opts:
